@@ -14,7 +14,11 @@ class AttendanceDetailController extends Controller
     {
         $attendance = Attendance::with(['user', 'breaks'])->findOrFail($id);
 
-        return view('admin.attendance.detail', compact('attendance'));
+        // 休憩データに空の入力欄を1つ追加
+        $breaksWithBlank = $attendance->breaks->toArray();
+        $breaksWithBlank[] = null; // 空の休憩入力欄
+
+        return view('admin.attendance.detail', compact('attendance', 'breaksWithBlank'));
     }
 
     public function update(AdminAttendanceUpdateRequest $request, $id)

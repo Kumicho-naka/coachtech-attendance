@@ -28,11 +28,11 @@
             <button type="submit" class="action-button primary">出勤</button>
         </form>
         @elseif($todayAttendance && !$todayAttendance->end_time && !$onBreak)
-        <form method="POST" action="{{ route('attendance.end') }}" style="display: inline;">
+        <form method="POST" action="{{ route('attendance.end') }}" class="inline-form">
             @csrf
             <button type="submit" class="action-button primary">退勤</button>
         </form>
-        <form method="POST" action="{{ route('attendance.break-start') }}" style="display: inline;">
+        <form method="POST" action="{{ route('attendance.break-start') }}" class="inline-form">
             @csrf
             <button type="submit" class="action-button secondary">休憩入</button>
         </form>

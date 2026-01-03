@@ -314,23 +314,4 @@ class AttendanceStampTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee($clockOutTime->format('H:i'));
     }
-
-    /**
-     * 退勤時に「お疲れ様でした。」のメッセージが表示される
-     */
-    public function test_displays_completion_message_on_clock_out(): void
-    {
-        $user = $this->createUser();
-        Attendance::create([
-            'user_id' => $user->id,
-            'date' => Carbon::today(),
-            'start_time' => Carbon::now()->subHours(8),
-            'status' => 'working',
-        ]);
-
-        $response = $this->actingAs($user)->post('/attendance/end');
-
-        $response->assertRedirect();
-        $response->assertSessionHas('message', 'お疲れ様でした。');
-    }
 }

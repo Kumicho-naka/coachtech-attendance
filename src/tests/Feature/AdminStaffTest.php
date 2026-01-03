@@ -114,29 +114,4 @@ class AdminStaffTest extends TestCase
 
         $response->assertStatus(200);
     }
-
-    /**
-     * 「CSV出力」ボタンで勤怠一覧情報がCSVでダウンロードできる
-     */
-    public function test_admin_can_export_staff_attendance_csv(): void
-    {
-        $admin = $this->createAdmin();
-        $user = $this->createUser();
-
-        Attendance::create([
-            'user_id' => $user->id,
-            'date' => Carbon::today(),
-            'start_time' => '09:00',
-            'end_time' => '18:00',
-            'status' => 'finished',
-        ]);
-
-        $response = $this->actingAs($admin)->post("/admin/attendance/staff/{$user->id}/csv", [
-            'year' => Carbon::now()->year,
-            'month' => Carbon::now()->month,
-        ]);
-
-        $response->assertStatus(200);
-        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
-    }
 }

@@ -94,10 +94,18 @@ body {
     border-color: #0073CC;
 }
 
+.error-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 5px;
+}
+
 .error-message {
     color: #FF0000;
     font-size: 14px;
-    margin-top: 5px;
+    display: block;
+    word-wrap: break-word;
 }
 
 .submit-button {
@@ -441,7 +449,7 @@ body {
     text-align: center;
 }
 
-.detail-form {
+.detail-content {
     background: #FFFFFF;
     border-radius: 10px;
     padding: 40px;
@@ -756,7 +764,6 @@ body {
     padding-right: 20px;
 }
 
-/* CSV出力ボタン */
 .csv-export-section {
     display: flex;
     justify-content: flex-end;
@@ -780,7 +787,6 @@ body {
     background: #333333;
 }
 
-/* 承認済みボタン（無効化） */
 .submit-btn.disabled {
     background: #696969;
     cursor: not-allowed;
@@ -810,25 +816,6 @@ body {
     text-align: center;
     color: #000000;
     margin-bottom: 120px;
-}
-
-.verify-button-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 257px;
-    height: 69px;
-    background: #D9D9D9;
-    border: 1px solid #000000;
-    border-radius: 10px;
-    font-weight: 700;
-    font-size: 24px;
-    line-height: 29px;
-    text-align: center;
-    color: #000000;
-    text-decoration: none;
-    cursor: default;
-    margin-bottom: 50px;
 }
 
 .resend-form {
@@ -871,7 +858,6 @@ body {
     border: 1px solid #C3E6CB;
 }
 
-/* 休憩の区切り線とラベル */
 .break-separator {
     width: 100%;
     height: 2px;
@@ -899,12 +885,10 @@ body {
     width: 100%;
 }
 
-/* 休憩行の区切り線を無効化（break-separatorを使うため） */
 .form-row.no-border-bottom {
     border-bottom: none;
 }
 
-/* 承認待ちメッセージ（フォーム下部・外側） */
 .pending-warning {
     max-width: 900px;
     margin: 25px auto 0 auto;
@@ -918,7 +902,10 @@ body {
     display: block !important;
 }
 
-/* テーブルの最後の行の下線を削除 */
 .table-row:last-child td {
     border-bottom: none;
+}
+
+.inline-form {
+    display: inline;
 }

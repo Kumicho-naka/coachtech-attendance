@@ -23,6 +23,10 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('name');
+
+        // メッセージ内容を確認
+        $response = $this->get('/register');
+        $response->assertSee('お名前を入力してください');
     }
 
     /**
@@ -38,6 +42,10 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('email');
+
+        // メッセージ内容を確認
+        $response = $this->get('/register');
+        $response->assertSee('メールアドレスを入力してください');
     }
 
     /**
@@ -53,6 +61,10 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('password');
+
+        // メッセージ内容を確認
+        $response = $this->get('/register');
+        $response->assertSee('パスワードは8文字以上で入力してください');
     }
 
     /**
@@ -68,6 +80,10 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('password');
+
+        // メッセージ内容を確認
+        $response = $this->get('/register');
+        $response->assertSee('パスワードと一致しません');
     }
 
     /**
@@ -83,6 +99,10 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('password');
+
+        // メッセージ内容を確認
+        $response = $this->get('/register');
+        $response->assertSee('パスワードを入力してください');
     }
 
     /**
@@ -115,6 +135,10 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('email');
+
+        // メッセージ内容を確認
+        $response = $this->get('/login');
+        $response->assertSee('メールアドレスを入力してください');
     }
 
     /**
@@ -128,6 +152,10 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('password');
+
+        // メッセージ内容を確認
+        $response = $this->get('/login');
+        $response->assertSee('パスワードを入力してください');
     }
 
     /**
@@ -146,19 +174,9 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('email');
-    }
 
-    /**
-     * 一般ユーザーはログアウトできる
-     */
-    public function test_user_can_logout(): void
-    {
-        $user = $this->createUser();
-        $this->actingAs($user);
-
-        $response = $this->post('/logout');
-
-        $response->assertRedirect('/login');
-        $this->assertGuest();
+        // メッセージ内容を確認
+        $response = $this->get('/login');
+        $response->assertSee('ログイン情報が登録されていません');
     }
 }

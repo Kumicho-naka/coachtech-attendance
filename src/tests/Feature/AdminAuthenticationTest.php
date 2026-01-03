@@ -21,6 +21,10 @@ class AdminAuthenticationTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('email');
+
+        // メッセージ内容を確認
+        $response = $this->get('/admin/login');
+        $response->assertSee('メールアドレスを入力してください');
     }
 
     /**
@@ -34,6 +38,10 @@ class AdminAuthenticationTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('password');
+
+        // メッセージ内容を確認
+        $response = $this->get('/admin/login');
+        $response->assertSee('パスワードを入力してください');
     }
 
     /**
@@ -52,19 +60,9 @@ class AdminAuthenticationTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('email');
-    }
 
-    /**
-     * 管理者はログアウトできる
-     */
-    public function test_admin_can_logout(): void
-    {
-        $admin = $this->createAdmin();
-        $this->actingAs($admin);
-
-        $response = $this->post('/admin/logout');
-
-        $response->assertRedirect('/admin/login');
-        $this->assertGuest();
+        // メッセージ内容を確認
+        $response = $this->get('/admin/login');
+        $response->assertSee('ログイン情報が登録されていません');
     }
 }

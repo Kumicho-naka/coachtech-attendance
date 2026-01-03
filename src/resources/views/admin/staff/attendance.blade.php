@@ -41,17 +41,18 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($attendances as $attendance)
+                @foreach($allDates as $dateData)
+                @php
+                $date = \Carbon\Carbon::parse($dateData['date']);
+                $attendance = $dateData['attendance'];
+                $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][$date->dayOfWeek];
+                @endphp
                 <tr class="table-row">
-                    <td>@php
-                        $date = \Carbon\Carbon::parse($attendance->date);
-                        $dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][$date->dayOfWeek];
-                        @endphp
-                        {{ $date->format('m/d') }}({{ $dayOfWeek }})
-                    </td>
-                    <td>{{ $attendance->start_time ? \Carbon\Carbon::parse($attendance->start_time)->format('H:i') : '' }}</td>
-                    <td>{{ $attendance->end_time ? \Carbon\Carbon::parse($attendance->end_time)->format('H:i') : '' }}</td>
+                    <td>{{ $date->format('m/d') }}({{ $dayOfWeek }})</td>
+                    <td>{{ $attendance && $attendance->start_time ? \Carbon\Carbon::parse($attendance->start_time)->format('H:i') : '' }}</td>
+                    <td>{{ $attendance && $attendance->end_time ? \Carbon\Carbon::parse($attendance->end_time)->format('H:i') : '' }}</td>
                     <td>
+                        @if($attendance)
                         @php
                         $totalBreakMinutes = 0;
                         foreach($attendance->breaks as $break) {
@@ -65,9 +66,10 @@
                         $breakMinutes = $totalBreakMinutes % 60;
                         @endphp
                         {{ $breakHours }}:{{ str_pad($breakMinutes, 2, '0', STR_PAD_LEFT) }}
+                        @endif
                     </td>
                     <td>
-                        @if($attendance->start_time && $attendance->end_time)
+                        @if($attendance && $attendance->start_time && $attendance->end_time)
                         @php
                         $start = \Carbon\Carbon::parse($attendance->start_time);
                         $end = \Carbon\Carbon::parse($attendance->end_time);
@@ -79,14 +81,12 @@
                         @endif
                     </td>
                     <td>
+                        @if($attendance)
                         <a href="{{ route('admin.attendance.detail', $attendance->id) }}" class="detail-link">詳細</a>
+                        @endif
                     </td>
                 </tr>
-                @empty
-                <tr>
-                    <td colspan="6" style="text-align: center; padding: 40px;">勤怠データがありません</td>
-                </tr>
-                @endforelse
+                @endforeach
             </tbody>
         </table>
     </div>

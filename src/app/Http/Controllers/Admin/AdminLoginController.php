@@ -6,14 +6,21 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\AdminLoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
-class AuthenticatedSessionController extends Controller
+class AdminLoginController extends Controller
 {
+    /**
+     * 管理者ログイン画面を表示
+     */
     public function create()
     {
         return view('admin.auth.login');
     }
 
+    /**
+     * 管理者ログイン処理
+     */
     public function store(AdminLoginRequest $request)
     {
         $credentials = $request->only('email', 'password');
@@ -21,11 +28,12 @@ class AuthenticatedSessionController extends Controller
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
 
-            // 管理者かチェック
+            // 管理者チェック
             if ($user->role !== 'admin') {
                 Auth::logout();
-                return back()->withErrors([
-                    'email' => 'ログイン情報が登録されていません',
+
+                throw ValidationException::withMessages([
+                    'email' => ['ログイン情報が登録されていません'],
                 ]);
             }
 
@@ -34,11 +42,14 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('admin.attendance.list');
         }
 
-        return back()->withErrors([
-            'email' => 'ログイン情報が登録されていません',
-        ])->withInput($request->only('email'));
+        throw ValidationException::withMessages([
+            'email' => ['ログイン情報が登録されていません'],
+        ]);
     }
 
+    /**
+     * 管理者ログアウト処理
+     */
     public function destroy(Request $request)
     {
         Auth::logout();

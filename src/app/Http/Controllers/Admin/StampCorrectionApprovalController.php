@@ -18,7 +18,22 @@ class StampCorrectionApprovalController extends Controller
             'breakCorrectionRequests'
         ])->findOrFail($id);
 
-        return view('admin.requests.detail', ['request' => $correctionRequest]);
+        // 休憩データを配列に変換
+        $breaks = $correctionRequest->breakCorrectionRequests->toArray();
+
+        // 休憩の数が3未満の場合、空の休憩を追加
+        $breakCount = count($breaks);
+        for ($i = $breakCount; $i < 3; $i++) {
+            $breaks[] = [
+                'start_time' => null,
+                'end_time' => null,
+            ];
+        }
+
+        return view('admin.requests.detail', [
+            'request' => $correctionRequest,
+            'breaks' => $breaks
+        ]);
     }
 
     public function approve(Request $request, $id)

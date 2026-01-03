@@ -11,7 +11,7 @@
         </div>
     </div>
 
-    <div class="detail-form">
+    <div class="detail-content">
         <div class="form-section">
             <div class="form-row">
                 <label class="form-label">名前</label>
@@ -35,35 +35,35 @@
                 </div>
             </div>
 
+            @foreach($breaks as $index => $break)
             <div class="form-row">
-                <label class="form-label">休憩</label>
-                <div class="form-value-column">
-                    @foreach($request->breakCorrectionRequests as $index => $break)
-                    <div class="form-value-group">
-                        <span>{{ $break->start_time ? \Carbon\Carbon::parse($break->start_time)->format('H:i') : '' }}</span>
-                        <span class="separator">〜</span>
-                        <span>{{ $break->end_time ? \Carbon\Carbon::parse($break->end_time)->format('H:i') : '' }}</span>
-                    </div>
-                    @endforeach
+                <label class="form-label">休憩{{ $index > 0 ? $index + 1 : '' }}</label>
+                <div class="form-value-group">
+                    @if(isset($break['start_time']) && $break['start_time'])
+                    <span>{{ \Carbon\Carbon::parse($break['start_time'])->format('H:i') }}</span>
+                    <span class="separator">〜</span>
+                    <span>{{ isset($break['end_time']) && $break['end_time'] ? \Carbon\Carbon::parse($break['end_time'])->format('H:i') : '' }}</span>
+                    @endif
                 </div>
             </div>
+            @endforeach
 
             <div class="form-row">
                 <label class="form-label">備考</label>
                 <div class="form-value">{{ $request->remarks }}</div>
             </div>
         </div>
+    </div>
 
-        <div class="form-actions">
-            @if($request->status === 'pending')
-            <form method="POST" action="{{ route('admin.stamp-correction-request.approve.post', $request->id) }}">
-                @csrf
-                <button type="submit" class="submit-btn">承認</button>
-            </form>
-            @else
-            <button class="submit-btn disabled" disabled>承認済み</button>
-            @endif
-        </div>
+    <div class="form-actions">
+        @if($request->status === 'pending')
+        <form method="POST" action="{{ route('admin.stamp-correction-request.approve.post', $request->id) }}">
+            @csrf
+            <button type="submit" class="submit-btn">承認</button>
+        </form>
+        @else
+        <button class="submit-btn disabled" disabled>承認済み</button>
+        @endif
     </div>
 </div>
 @endsection

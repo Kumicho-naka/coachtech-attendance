@@ -14,11 +14,7 @@
         登録していただいたメールアドレスに認証メールを送付しました。<br>
         メール認証を完了してください。
     </p>
-
-    <div class="verify-button-link">
-        認証はこちらから
-    </div>
-
+    
     <form method="POST" action="{{ route('verification.send') }}" class="resend-form">
         @csrf
         <button type="submit" class="resend-link">

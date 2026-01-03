@@ -17,16 +17,33 @@ class StaffAttendanceController extends Controller
         $year = $request->input('year', Carbon::now()->year);
         $month = $request->input('month', Carbon::now()->month);
 
+        // その月の勤怠データを取得
         $attendances = Attendance::where('user_id', $user->id)
             ->whereYear('date', $year)
             ->whereMonth('date', $month)
             ->with('breaks')
             ->orderBy('date', 'asc')
-            ->get();
+            ->get()
+            ->mapWithKeys(function ($attendance) {
+                // 明示的にY-m-d形式のキーを作成
+                return [Carbon::parse($attendance->date)->format('Y-m-d') => $attendance];
+            });
 
         $currentDate = Carbon::create($year, $month, 1);
 
-        return view('admin.staff.attendance', compact('user', 'attendances', 'currentDate'));
+        // その月の全日付を生成
+        $daysInMonth = $currentDate->daysInMonth;
+        $allDates = [];
+
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $date = Carbon::create($year, $month, $day)->format('Y-m-d');
+            $allDates[] = [
+                'date' => $date,
+                'attendance' => $attendances->get($date), // 勤怠データがあればそれを使用、なければnull
+            ];
+        }
+
+        return view('admin.staff.attendance', compact('user', 'allDates', 'currentDate'));
     }
 
     public function exportCsv(Request $request, $id)
@@ -36,12 +53,30 @@ class StaffAttendanceController extends Controller
         $year = $request->input('year', Carbon::now()->year);
         $month = $request->input('month', Carbon::now()->month);
 
+        // その月の勤怠データを取得
         $attendances = Attendance::where('user_id', $user->id)
             ->whereYear('date', $year)
             ->whereMonth('date', $month)
             ->with('breaks')
             ->orderBy('date', 'asc')
-            ->get();
+            ->get()
+            ->mapWithKeys(function ($attendance) {
+                // 明示的にY-m-d形式のキーを作成
+                return [Carbon::parse($attendance->date)->format('Y-m-d') => $attendance];
+            });
+
+        // その月の全日付を生成
+        $currentDate = Carbon::create($year, $month, 1);
+        $daysInMonth = $currentDate->daysInMonth;
+        $allDates = [];
+
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $date = Carbon::create($year, $month, $day)->format('Y-m-d');
+            $allDates[] = [
+                'date' => $date,
+                'attendance' => $attendances->get($date),
+            ];
+        }
 
         $filename = sprintf('%s_%d年%d月_勤怠データ.csv', $user->name, $year, $month);
 
@@ -50,25 +85,25 @@ class StaffAttendanceController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ];
 
-        $callback = function () use ($attendances) {
+        $callback = function () use ($allDates) {
             $stream = fopen('php://output', 'w');
 
-            // BOM追加（Excel対応）
             fprintf($stream, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
             // ヘッダー
             fputcsv($stream, ['日付', '出勤時刻', '退勤時刻', '休憩時間', 'ステータス', '備考']);
 
-            foreach ($attendances as $attendance) {
-                $breakTime = $this->calculateBreakTime($attendance->breaks);
+            foreach ($allDates as $dateData) {
+                $attendance = $dateData['attendance'];
+                $breakTime = $attendance ? $this->calculateBreakTime($attendance->breaks) : '';
 
                 fputcsv($stream, [
-                    $attendance->date,
-                    $attendance->start_time ?? '',
-                    $attendance->end_time ?? '',
+                    $dateData['date'],
+                    $attendance && $attendance->start_time ? $attendance->start_time : '',
+                    $attendance && $attendance->end_time ? $attendance->end_time : '',
                     $breakTime,
-                    $this->getStatusLabel($attendance->status),
-                    $attendance->remarks ?? '',
+                    $attendance ? $this->getStatusLabel($attendance->status) : '',
+                    $attendance && $attendance->remarks ? $attendance->remarks : '',
                 ]);
             }
 

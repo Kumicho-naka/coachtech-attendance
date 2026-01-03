@@ -6,7 +6,9 @@ use App\Actions\Fortify\CreateNewUser;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Fortify;
 use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Contracts\RegisterResponse;
@@ -57,7 +59,27 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // 会員登録にCreateNewUserを使用
         Fortify::createUsersUsing(CreateNewUser::class);
+
+        // ログイン認証にFormRequestを適用
+        Fortify::authenticateUsing(function (Request $request) {
+            // FormRequestのバリデーションを適用
+            $loginRequest = app(\App\Http\Requests\LoginRequest::class);
+            Validator::make($request->all(), $loginRequest->rules(), $loginRequest->messages())->validate();
+
+            // 認証処理
+            $user = \App\Models\User::where('email', $request->email)->first();
+
+            if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+                return $user;
+            }
+
+            // 認証失敗
+            throw ValidationException::withMessages([
+                'email' => ['ログイン情報が登録されていません'],
+            ]);
+        });
 
         // ビューの指定
         Fortify::registerView(function () {

@@ -11,9 +11,9 @@ use App\Http\Controllers\Admin\StaffListController;
 use App\Http\Controllers\Admin\StaffAttendanceController;
 use App\Http\Controllers\Admin\StampCorrectionRequestController as AdminStampCorrectionRequestController;
 use App\Http\Controllers\Admin\StampCorrectionApprovalController;
-use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthenticatedSessionController;
+use App\Http\Controllers\Admin\AdminLoginController;
 
-// 一般ユーザー用ルート
+// 一般ユーザー用ルート（Fortifyが/register, /login, /logoutを提供）
 Route::middleware(['auth'])->group(function () {
     // 勤怠打刻
     Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
@@ -33,16 +33,16 @@ Route::middleware(['auth'])->group(function () {
 
 // 管理者用ルート
 Route::prefix('admin')->name('admin.')->group(function () {
-    // 管理者ログイン
-    Route::get('/login', [AdminAuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('/login', [AdminAuthenticatedSessionController::class, 'store']);
-    Route::post('/logout', [AdminAuthenticatedSessionController::class, 'destroy'])->name('logout');
+    // 管理者ログイン（Fortifyパターン + FormRequest）
+    Route::get('/login', [AdminLoginController::class, 'create'])->name('login');
+    Route::post('/login', [AdminLoginController::class, 'store']);
+    Route::post('/logout', [AdminLoginController::class, 'destroy'])->name('logout');
 
     Route::middleware(['auth'])->group(function () {
         // 勤怠一覧・詳細
         Route::get('/attendance/list', [AdminAttendanceListController::class, 'index'])->name('attendance.list');
         Route::get('/attendance/{id}', [AdminAttendanceDetailController::class, 'show'])->name('attendance.detail');
-        Route::post('/attendance/{id}', [AdminAttendanceDetailController::class, 'update'])->name('attendance.update');
+        Route::put('/attendance/{id}', [AdminAttendanceDetailController::class, 'update'])->name('attendance.update');
 
         // スタッフ一覧・スタッフ別勤怠
         Route::get('/staff/list', [StaffListController::class, 'index'])->name('staff.list');
